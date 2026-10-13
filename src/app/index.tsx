@@ -1,98 +1,67 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
+import { useState } from 'react';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+export default function LoginScreen() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
+  function handleLogin() {
+    if (!email.trim() || !password) {
+      setError('Enter your email and password to continue.');
+      return;
+    }
+    setError('');
+    router.replace('/home');
   }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
-
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <View style={styles.brandMark}><Text style={styles.brandMarkText}>D</Text></View>
+          <Text style={styles.eyebrow}>WELCOME BACK</Text>
+          <Text style={styles.title}>Sign in to Demo</Text>
+          <Text style={styles.subtitle}>Your simple, focused workspace starts here.</Text>
+          <View style={styles.form}>
+            <Text style={styles.label}>Email address</Text>
+            <TextInput autoCapitalize="none" keyboardType="email-address" onChangeText={setEmail} placeholder="you@example.com" placeholderTextColor="#9AA3B2" style={styles.input} value={email} />
+            <Text style={styles.label}>Password</Text>
+            <TextInput onChangeText={setPassword} placeholder="Enter your password" placeholderTextColor="#9AA3B2" secureTextEntry style={styles.input} value={password} />
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+            <Pressable onPress={handleLogin} style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
+              <Text style={styles.primaryButtonText}>Sign in</Text>
+            </Pressable>
+          </View>
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>New here?</Text>
+            <Pressable onPress={() => router.push('/signup')}><Text style={styles.link}> Create an account</Text></Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
+  flex: { flex: 1 },
+  safeArea: { backgroundColor: '#F7F8FC', flex: 1 },
+  content: { flexGrow: 1, justifyContent: 'center', padding: 28 },
+  brandMark: { alignItems: 'center', backgroundColor: '#5B5FEF', borderRadius: 16, height: 56, justifyContent: 'center', marginBottom: 36, width: 56 },
+  brandMarkText: { color: '#FFFFFF', fontSize: 28, fontWeight: '800' },
+  eyebrow: { color: '#5B5FEF', fontSize: 12, fontWeight: '800', letterSpacing: 1.5, marginBottom: 10 },
+  title: { color: '#182033', fontSize: 34, fontWeight: '800', letterSpacing: -1 },
+  subtitle: { color: '#697386', fontSize: 16, lineHeight: 24, marginTop: 12, maxWidth: 300 },
+  form: { marginTop: 36 },
+  label: { color: '#30394D', fontSize: 14, fontWeight: '700', marginBottom: 8, marginTop: 18 },
+  input: { backgroundColor: '#FFFFFF', borderColor: '#E2E6EF', borderRadius: 14, borderWidth: 1, color: '#182033', fontSize: 16, height: 54, paddingHorizontal: 16 },
+  error: { color: '#C2415A', fontSize: 13, marginTop: 12 },
+  primaryButton: { alignItems: 'center', backgroundColor: '#5B5FEF', borderRadius: 14, height: 56, justifyContent: 'center', marginTop: 24 },
+  primaryButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' },
+  pressed: { opacity: 0.82 },
+  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 32 },
+  footerText: { color: '#697386', fontSize: 14 },
+  link: { color: '#5B5FEF', fontSize: 14, fontWeight: '800' },
 });
